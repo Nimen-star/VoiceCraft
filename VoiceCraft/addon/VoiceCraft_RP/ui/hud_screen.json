@@ -160,7 +160,7 @@
             {
               "hint_label": {
                 "type": "label",
-                "text": "Chat: !vc menu | !vc setup",
+                "text": "Hotbar Slot 9 | !vc menu",
                 "color": [
                   0.82,
                   0.85,

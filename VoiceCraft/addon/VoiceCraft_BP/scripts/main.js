@@ -1,4 +1,4 @@
-import { world, system, ItemStack } from "@minecraft/server";
+import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 // Universal mode: works on Realms, Worlds, and Servers via /wsserver + Script UI
 
@@ -56,7 +56,7 @@ function sendConnectChatHint(player) {
   player.sendMessage("§a[VoiceCraft]§f Enable WebSockets to connect:");
   player.sendMessage("§e1.§f Open §lSettings -> Network Settings§r -> turn §aON \"Enable WebSockets\"§f.");
   player.sendMessage("§e2.§f Run in chat: §b" + wsCommand);
-  player.sendMessage("§e3.§f Open §b" + CONFIG.serverUrl + "§f in the background for mic/audio, then control everything in-game via §a!vc menu§f or the HUD button next to Emote.");
+  player.sendMessage("§e3.§f Open §b" + CONFIG.serverUrl + "§f in the background for mic/audio, then press §a9 + Right-Click§f on the §lVoiceCraft Menu§r in your 9th hotbar slot (or type §a!vc menu§f).");
 }
 
 async function showWebSocketsOnboarding(player) {
@@ -67,7 +67,7 @@ async function showWebSocketsOnboarding(player) {
       "§a1.§f Open §lSettings -> Network Settings§r and toggle §aEnable WebSockets ON§f.\n" +
       "§a2.§f Copy & run the §b/wsserver§f command posted in chat.\n" +
       "§a3.§f Keep §b" + CONFIG.serverUrl + "§f open in the background for audio.\n\n" +
-      "Everything else (Mic ON/OFF, People's Voices, Speaking, Channels) is handled right here in-game!"
+      "Use the locked §lVoiceCraft Menu§r in your §a9th hotbar slot§f (Right-Click) or §a!vc menu§f for Mic, Voices, Speaking, and Channels!"
     )
     .button("§aGot It (Don't Show Again)")
     .button("§bOpen Voice Menu Now")
@@ -87,10 +87,58 @@ async function showWebSocketsOnboarding(player) {
   }
 }
 
-function giveToggleKit(player) {
+function createLockedVoiceMenuItem() {
+  const menuItem = new ItemStack("voicecraft:voice_menu", 1);
+  menuItem.nameTag = "§aVoiceCraft Menu §7(Right-Click)";
+  menuItem.lockMode = ItemLockMode.slot;
+  menuItem.keepOnDeath = true;
+  menuItem.setLore([
+    "§7Hotbar Slot 9 (Locked)",
+    "§aRight-Click§7: Mic, Voices, Speak & Channels",
+    "§8Cannot be dropped or lost on death"
+  ]);
+  return menuItem;
+}
+
+function ensureHotbarMenuSlot(player) {
   const inv = player.getComponent("minecraft:inventory");
   if (!inv || !inv.container) return;
-  const items = ["voicecraft:mic_toggle", "voicecraft:voices_toggle", "voicecraft:voice_menu"];
+  const container = inv.container;
+  const hotbarNineIndex = 8;
+  try {
+    // Clean up any stray copies outside slot 9
+    for (let i = 0; i < container.size; i++) {
+      if (i === hotbarNineIndex) continue;
+      const item = container.getItem(i);
+      if (item && item.typeId === "voicecraft:voice_menu") {
+        container.setItem(i, undefined);
+      }
+    }
+    const current = container.getItem(hotbarNineIndex);
+    if (current && current.typeId === "voicecraft:voice_menu") {
+      if (current.lockMode !== ItemLockMode.slot || !current.keepOnDeath) {
+        container.setItem(hotbarNineIndex, createLockedVoiceMenuItem());
+      }
+      return;
+    }
+    if (current) {
+      const overflow = container.addItem(current);
+      if (overflow) {
+        try {
+          player.dimension.spawnItem(overflow, player.location);
+        } catch {}
+      }
+    }
+    container.setItem(hotbarNineIndex, createLockedVoiceMenuItem());
+  } catch {}
+}
+
+function giveToggleKit(player, includeExtraItems = false) {
+  ensureHotbarMenuSlot(player);
+  if (!includeExtraItems) return;
+  const inv = player.getComponent("minecraft:inventory");
+  if (!inv || !inv.container) return;
+  const items = ["voicecraft:mic_toggle", "voicecraft:voices_toggle"];
   for (const id of items) {
     let found = false;
     for (let i = 0; i < inv.container.size; i++) {
@@ -102,7 +150,10 @@ function giveToggleKit(player) {
     }
     if (!found) {
       try {
-        inv.container.addItem(new ItemStack(id, 1));
+        const extra = new ItemStack(id, 1);
+        extra.lockMode = ItemLockMode.inventory;
+        extra.keepOnDeath = true;
+        inv.container.addItem(extra);
       } catch {}
     }
   }
@@ -247,8 +298,8 @@ world.beforeEvents.chatSend.subscribe((event) => {
       return;
     }
     if (cmd === "kit") {
-      giveToggleKit(player);
-      player.sendMessage("§a[VoiceCraft]§f Gave Mic, Voices, and Radio quick-toggle items.");
+      giveToggleKit(player, parts[1] === "all");
+      player.sendMessage("§a[VoiceCraft]§f Restored locked VoiceCraft Menu in Hotbar Slot 9 (cannot drop or lose on death).");
       return;
     }
     if (cmd === "mute" && parts[1]) {
@@ -305,11 +356,11 @@ world.afterEvents.itemUse.subscribe((event) => {
 });
 
 world.afterEvents.playerSpawn.subscribe((event) => {
-  if (!event.initialSpawn) return;
   const player = event.player;
   if (CONFIG.giveHotbarToggles) {
-    giveToggleKit(player);
+    ensureHotbarMenuSlot(player);
   }
+  if (!event.initialSpawn) return;
   system.runTimeout(() => {
     sendConnectChatHint(player);
     if (!player.getDynamicProperty("voicecraft:onboarded")) {

@@ -221,7 +221,7 @@ export const AddonSetupView: React.FC<AddonSetupViewProps> = ({
               </button>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[#e0e5ee]">1-Tap Hotbar Items (Mic, Voices, Radio)</span>
+              <span className="text-[#e0e5ee]">Locked Hotbar Slot 9 Menu (No Drop / Keep on Death)</span>
               <button
                 type="button"
                 role="switch"

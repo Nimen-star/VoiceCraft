@@ -325,7 +325,7 @@ export const VoiceBridgeView: React.FC<VoiceBridgeViewProps> = ({
           <div className="border-b-2 border-[#16181e] pb-4">
             <h2 className="font-pixel-display text-lg text-white">In-Game Minecraft UI</h2>
             <p className="text-sm text-[#aeb5c4] mt-1">
-              Adds a matching HUD button right next to Emote inside Minecraft Bedrock containing all voice controls.
+              Adds a locked VoiceCraft Menu in Hotbar Slot 9 (cannot drop or lose on death, Right-Click on PC) plus a HUD button next to Emote for touch.
             </p>
           </div>
 

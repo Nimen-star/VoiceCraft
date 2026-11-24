@@ -135,7 +135,10 @@ test('generateAddonFiles outputs VoiceCraft packs, Emote-adjacent HUD button, on
   assert.ok(mainJs.includes('wss://voicecraft-bridge.onrender.com/ws/bedrock'));
   assert.ok(mainJs.includes('Enable WebSockets'));
   assert.ok(mainJs.includes('voicecraft:onboarded'));
-  assert.ok(files.some((f) => f.path === 'VoiceCraft_BP/items/mic_toggle.json'));
+  assert.ok(mainJs.includes('ItemLockMode.slot'));
+  assert.ok(mainJs.includes('keepOnDeath = true'));
+  assert.ok(mainJs.includes('hotbarNineIndex = 8'));
+  assert.ok(files.some((f) => f.path === 'VoiceCraft_BP/items/voice_menu.json'));
 });
 
 test('generateExternalRepoFiles outputs Render/Docker VoiceCraft GitHub repository files', () => {
