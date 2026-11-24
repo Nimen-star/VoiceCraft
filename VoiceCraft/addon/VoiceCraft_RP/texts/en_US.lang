@@ -1,0 +1,6 @@
+pack.name=VoiceCraft
+pack.description=In-game Voice Chat HUD button next to Emote & WebSockets bridge (CRAFT1)
+item.voicecraft:mic_toggle.name=Mic ON/OFF Toggle
+item.voicecraft:voices_toggle.name=People's Voices ON/OFF
+item.voicecraft:voice_menu.name=Voice Radio Menu
+voicecraft.hud.title=VoiceCraft Voice Chat

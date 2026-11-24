@@ -1,0 +1,15 @@
+{
+  "resource_pack_name": "VoiceCraft",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "voicecraft_mic_btn": {
+      "textures": "textures/voicecraft/mic_on"
+    },
+    "voicecraft_voices_btn": {
+      "textures": "textures/voicecraft/voices_on"
+    },
+    "voicecraft_radio_btn": {
+      "textures": "textures/voicecraft/speak_on"
+    }
+  }
+}

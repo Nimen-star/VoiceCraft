@@ -1,0 +1,300 @@
+{
+  "namespace": "hud",
+  "voicecraft_top_btn_base": {
+    "type": "button",
+    "size": [
+      18,
+      18
+    ],
+    "default_control": "default",
+    "hover_control": "hover",
+    "pressed_control": "pressed",
+    "sound_name": "random.click",
+    "sound_volume": 0.7
+  },
+  "voicecraft_emote_adjacent_btn@hud.voicecraft_top_btn_base": {
+    "$pressed_button_name": "button.voicecraft_toggle_drawer",
+    "controls": [
+      {
+        "default": {
+          "type": "image",
+          "texture": "textures/ui/button_borderless_dark",
+          "size": [
+            18,
+            18
+          ],
+          "controls": [
+            {
+              "icon": {
+                "type": "image",
+                "texture": "textures/voicecraft/mic_on",
+                "size": [
+                  12,
+                  12
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "hover": {
+          "type": "image",
+          "texture": "textures/ui/button_borderless_light",
+          "size": [
+            18,
+            18
+          ],
+          "controls": [
+            {
+              "icon": {
+                "type": "image",
+                "texture": "textures/voicecraft/mic_on",
+                "size": [
+                  12,
+                  12
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "pressed": {
+          "type": "image",
+          "texture": "textures/ui/button_borderless_darkpressed",
+          "size": [
+            18,
+            18
+          ],
+          "controls": [
+            {
+              "icon": {
+                "type": "image",
+                "texture": "textures/voicecraft/mic_off",
+                "size": [
+                  12,
+                  12
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "voicecraft_drawer_row_btn@common_buttons.dark_text_button": {
+    "size": [
+      "100%",
+      20
+    ]
+  },
+  "voicecraft_mic_toggle_btn@hud.voicecraft_drawer_row_btn": {
+    "$pressed_button_name": "button.voicecraft_mic_toggle",
+    "$button_text": "Mic: ON / OFF"
+  },
+  "voicecraft_voices_toggle_btn@hud.voicecraft_drawer_row_btn": {
+    "$pressed_button_name": "button.voicecraft_voices_toggle",
+    "$button_text": "People's Voices: ON / OFF"
+  },
+  "voicecraft_speak_toggle_btn@hud.voicecraft_drawer_row_btn": {
+    "$pressed_button_name": "button.voicecraft_speak_toggle",
+    "$button_text": "Speaking: ON / OFF"
+  },
+  "voicecraft_open_menu_btn@hud.voicecraft_drawer_row_btn": {
+    "$pressed_button_name": "button.chat",
+    "$button_text": "Open !vc Menu / Channels"
+  },
+  "voicecraft_hud_drawer": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "size": [
+      148,
+      "100%c"
+    ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "offset": [
+      6,
+      28
+    ],
+    "layer": 14,
+    "controls": [
+      {
+        "header_panel": {
+          "type": "panel",
+          "size": [
+            148,
+            22
+          ],
+          "controls": [
+            {
+              "bg": {
+                "type": "image",
+                "texture": "textures/ui/dialog_background_opaque",
+                "alpha": 0.84,
+                "size": [
+                  "100%",
+                  "100%"
+                ]
+              }
+            },
+            {
+              "title_label": {
+                "type": "label",
+                "text": "VOICECRAFT · CRAFT1",
+                "color": [
+                  0.39,
+                  0.83,
+                  0.27
+                ],
+                "font_scale_factor": 0.78,
+                "offset": [
+                  6,
+                  3
+                ],
+                "anchor_from": "top_left",
+                "anchor_to": "top_left"
+              }
+            },
+            {
+              "hint_label": {
+                "type": "label",
+                "text": "Chat: !vc menu | !vc setup",
+                "color": [
+                  0.82,
+                  0.85,
+                  0.9
+                ],
+                "font_scale_factor": 0.62,
+                "offset": [
+                  6,
+                  12
+                ],
+                "anchor_from": "top_left",
+                "anchor_to": "top_left"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "controls_panel": {
+          "type": "panel",
+          "size": [
+            148,
+            86
+          ],
+          "controls": [
+            {
+              "bg": {
+                "type": "image",
+                "texture": "textures/ui/dialog_background_opaque",
+                "alpha": 0.78,
+                "size": [
+                  "100%",
+                  "100%"
+                ]
+              }
+            },
+            {
+              "stack": {
+                "type": "stack_panel",
+                "orientation": "vertical",
+                "size": [
+                  140,
+                  82
+                ],
+                "offset": [
+                  0,
+                  2
+                ],
+                "controls": [
+                  {
+                    "mic_btn@hud.voicecraft_mic_toggle_btn": {}
+                  },
+                  {
+                    "sp1": {
+                      "type": "panel",
+                      "size": [
+                        "100%",
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "voices_btn@hud.voicecraft_voices_toggle_btn": {}
+                  },
+                  {
+                    "sp2": {
+                      "type": "panel",
+                      "size": [
+                        "100%",
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "speak_btn@hud.voicecraft_speak_toggle_btn": {}
+                  },
+                  {
+                    "sp3": {
+                      "type": "panel",
+                      "size": [
+                        "100%",
+                        2
+                      ]
+                    }
+                  },
+                  {
+                    "menu_btn@hud.voicecraft_open_menu_btn": {}
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "emote_button@hud.hud_action_button": {},
+  "chat_stack": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_after",
+        "where": {
+          "emote_button": {}
+        },
+        "value": [
+          {
+            "voicecraft_voice_hud_btn@hud.voicecraft_emote_adjacent_btn": {}
+          }
+        ]
+      }
+    ]
+  },
+  "root_panel": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [
+          {
+            "voicecraft_voice_hud_btn_fallback@hud.voicecraft_emote_adjacent_btn": {
+              "anchor_from": "top_left",
+              "anchor_to": "top_left",
+              "offset": [
+                6,
+                6
+              ]
+            }
+          },
+          {
+            "voicecraft_voice_hud@hud.voicecraft_hud_drawer": {}
+          }
+        ]
+      }
+    ]
+  }
+}

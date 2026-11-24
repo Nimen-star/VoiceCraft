@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceCraft — External Voice Bridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@400;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; background:#16181d; color:#f0f2f5; font-family:"Pixelify Sans", system-ui, sans-serif; }
+    header { background:#1e2028; border-bottom:2px solid #0a0b0e; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { font-family:"Silkscreen", monospace; font-size:20px; font-weight:700; color:#63d446; }
+    .wrap { max-width:780px; margin:28px auto; padding:0 16px; }
+    .panel { background:#252831; border:2px solid #0d0e12; box-shadow:inset 2px 2px 0 rgba(255,255,255,.1), inset -2px -2px 0 rgba(0,0,0,.45); padding:20px; }
+    .slot { background:#14161b; border:2px solid #0a0b0e; padding:10px; font-family:"JetBrains Mono", monospace; font-size:12px; }
+    h1 { font-family:"Silkscreen", monospace; font-size:20px; margin:0 0 6px; }
+    p { color:#aeb5c4; font-size:14px; margin:0 0 14px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; }
+    label { display:block; font-size:13px; color:#d5dbe6; margin-bottom:4px; }
+    input { width:100%; background:#14161b; color:#fff; border:2px solid #0a0b0e; padding:8px 10px; font-family:"JetBrains Mono", monospace; font-size:13px; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:10px 16px; border:2px solid #0a0b0e; background:#3a3f4d; color:#fff; font-family:"Pixelify Sans", sans-serif; font-weight:600; cursor:pointer; text-decoration:none; }
+    .btn-green { background:#469c31; }
+    .status-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; margin-top:14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="brand">VoiceCraft</span>
+    <a class="btn btn-green" href="/download/VoiceCraft.mcaddon">Download .mcaddon</a>
+  </header>
+  <main class="wrap">
+    <section class="panel">
+      <h1>VoiceCraft External Bridge</h1>
+      <p>Keep this tab minimized while playing Minecraft Bedrock. Mute, People's Voices, Speaking, and Channels are controlled inside the game.</p>
+      <div class="grid">
+        <div><label for="tag">Minecraft Gamertag</label><input id="tag" value="Steve_Bedrock" /></div>
+        <div><label for="code">Room / Server Code</label><input id="code" value="CRAFT1" /></div>
+        <div><label for="pin">Private PIN (Optional)</label><input id="pin" type="password" placeholder="Open if blank" /></div>
+      </div>
+      <div class="row">
+        <button id="go" class="btn btn-green" type="button">Connect Voice Bridge</button>
+        <span id="status" class="slot">Status: Disconnected</span>
+      </div>
+      <div class="slot" style="margin-top:14px;color:#7ce861;word-break:break-all;" id="wscmd"></div>
+      <div class="status-grid" id="synced" style="display:none;">
+        <div class="slot"><div style="color:#8c94a6">Mic</div><div id="st-mic">ON</div></div>
+        <div class="slot"><div style="color:#8c94a6">Voices</div><div id="st-voices">ON</div></div>
+        <div class="slot"><div style="color:#8c94a6">Speaking</div><div id="st-speak">ON</div></div>
+        <div class="slot"><div style="color:#8c94a6">Channel</div><div id="st-chan">Proximity</div></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const tagEl = document.getElementById("tag");
+    const codeEl = document.getElementById("code");
+    const pinEl = document.getElementById("pin");
+    const cmdEl = document.getElementById("wscmd");
+    const statusEl = document.getElementById("status");
+    const syncedEl = document.getElementById("synced");
+    const updateCmd = () => {
+      const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
+      cmdEl.textContent = "/wsserver " + wsProto + "//" + location.host + "/ws/bedrock?code=" + (codeEl.value || "CRAFT1").toUpperCase() + "&tag=" + (tagEl.value || "Steve_Bedrock");
+    };
+    tagEl.oninput = updateCmd;
+    codeEl.oninput = updateCmd;
+    updateCmd();
+
+    document.getElementById("go").onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
+      const ws = new WebSocket(wsProto + "//" + location.host + "/ws/client");
+      const peers = new Map();
+      let selfId = null;
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: "join", gamertag: tagEl.value, roomCode: codeEl.value, pin: pinEl.value }));
+      };
+      ws.onmessage = async (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === "error") { statusEl.textContent = "Error: " + msg.error; return; }
+        if (msg.type === "joined") {
+          selfId = msg.playerId;
+          statusEl.textContent = "Status: Connected (" + msg.room.code + ")";
+          syncedEl.style.display = "grid";
+        }
+        if (msg.type === "room-state" && selfId) {
+          const me = msg.room.players.find((p) => p.id === selfId);
+          if (me) {
+            stream.getAudioTracks().forEach((t) => (t.enabled = !(me.muted || me.speakingDisabled)));
+            document.getElementById("st-mic").textContent = me.muted ? "OFF" : "ON";
+            document.getElementById("st-voices").textContent = me.deafened ? "OFF" : "ON";
+            document.getElementById("st-speak").textContent = me.speakingDisabled ? "OFF" : "ON";
+            document.getElementById("st-chan").textContent = me.scope;
+          }
+          for (const p of msg.room.players) {
+            if (p.id !== selfId && !peers.has(p.id) && selfId < p.id) {
+              const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+              peers.set(p.id, pc);
+              stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+              pc.onicecandidate = (e) => e.candidate && ws.send(JSON.stringify({ type: "rtc-signal", targetId: p.id, signal: { kind: "candidate", candidate: e.candidate } }));
+              pc.ontrack = (e) => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; };
+              const offer = await pc.createOffer();
+              await pc.setLocalDescription(offer);
+              ws.send(JSON.stringify({ type: "rtc-signal", targetId: p.id, signal: { kind: "sdp", sdp: offer } }));
+            }
+          }
+        }
+        if (msg.type === "rtc-signal") {
+          let pc = peers.get(msg.fromId);
+          if (!pc) {
+            pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+            peers.set(msg.fromId, pc);
+            stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+            pc.onicecandidate = (e) => e.candidate && ws.send(JSON.stringify({ type: "rtc-signal", targetId: msg.fromId, signal: { kind: "candidate", candidate: e.candidate } }));
+            pc.ontrack = (e) => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; };
+          }
+          if (msg.signal.kind === "sdp") {
+            await pc.setRemoteDescription(msg.signal.sdp);
+            if (msg.signal.sdp.type === "offer") {
+              const ans = await pc.createAnswer();
+              await pc.setLocalDescription(ans);
+              ws.send(JSON.stringify({ type: "rtc-signal", targetId: msg.fromId, signal: { kind: "sdp", sdp: ans } }));
+            }
+          } else if (msg.signal.kind === "candidate") {
+            await pc.addIceCandidate(msg.signal.candidate);
+          }
+        }
+      };
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "format_version": "1.21.10",
+  "minecraft:item": {
+    "description": {
+      "identifier": "voicecraft:voice_menu",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:max_stack_size": 1,
+      "minecraft:icon": "voicecraft_radio_btn",
+      "minecraft:hand_equipped": false
+    }
+  }
+}

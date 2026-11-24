@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "VoiceCraft Minecraft UI",
+    "description": "Minecraft-styled HUD button next to Emote, Mic/Voices/Speak toggles & Pause button.",
+    "uuid": "7f41b9e2-4a62-4e8d-91ab-8c04d13e2001",
+    "version": [
+      1,
+      2,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "7f41b9e2-4a62-4e8d-91ab-8c04d13e2002",
+      "version": [
+        1,
+        2,
+        0
+      ]
+    }
+  ]
+}
