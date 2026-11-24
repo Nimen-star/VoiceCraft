@@ -1,0 +1,6 @@
+{
+  "name": "VoiceCraft",
+  "description": "Minecraft Bedrock Edition voice chat addon (.mcaddon) and external WebSocket + WebRTC voice bridge for Worlds, Servers, Realms, and Private channels.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
